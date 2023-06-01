@@ -28,6 +28,7 @@ public class ModuleClassLoader extends ClassLoader {
     private final Map<String, ResolvedModule> packageLookup;
     private final Map<String, ClassLoader> parentLoaders;
     private ClassLoader fallbackClassLoader = ClassLoader.getPlatformClassLoader();
+    private static final ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
 
     public ModuleClassLoader(final String name, final Configuration configuration, final List<ModuleLayer> parentLayers) {
         super(name, null);
@@ -133,6 +134,8 @@ public class ModuleClassLoader extends ClassLoader {
                     final var pname = name.substring(0, index);
                     if (this.packageLookup.containsKey(pname)) {
                         c = findClass(this.packageLookup.get(pname).name(), name);
+                    } else if(name.contains("pro.gravit.launcher") || name.contains("pro.gravit.utils")) {
+                        c = systemClassLoader.loadClass(name);
                     } else {
                         c = this.parentLoaders.getOrDefault(pname, fallbackClassLoader).loadClass(name);
                     }
